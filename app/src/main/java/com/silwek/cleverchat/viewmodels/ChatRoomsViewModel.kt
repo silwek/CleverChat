@@ -3,7 +3,8 @@ package com.silwek.cleverchat.viewmodels
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.silwek.cleverchat.dummy.DummyContent
+import com.google.firebase.auth.FirebaseAuth
+import com.silwek.cleverchat.DatabaseFactory
 import com.silwek.cleverchat.models.ChatRoom
 
 
@@ -21,6 +22,10 @@ class ChatRoomsViewModel() : ViewModel() {
     }
 
     private fun loadUsers() {
-        chatRooms?.value = DummyContent.CHATROOMS
+        val user = FirebaseAuth.getInstance().currentUser
+        when (user) {
+            null -> chatRooms?.value = ArrayList<ChatRoom>(0)
+            else -> DatabaseFactory.firebaseDatabase.getChatRoomsForUser(user, { chatRooms?.value = it })
+        }
     }
 }
