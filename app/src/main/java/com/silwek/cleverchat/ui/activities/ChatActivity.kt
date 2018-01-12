@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.silwek.cleverchat.ui.fragments.ChatFragment
 import com.silwek.cleverchat.R
+import com.silwek.cleverchat.ui.fragments.ChatFragment
 import kotlinx.android.synthetic.main.activity_chat.*
 
 /**
@@ -13,6 +13,8 @@ import kotlinx.android.synthetic.main.activity_chat.*
  * activity is only used on narrow width devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
  * in a [ChatRoomsActivity].
+ *
+ * @author Silwèk on 12/01/2018
  */
 class ChatActivity : AppCompatActivity() {
 

@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity
 import com.silwek.cleverchat.R
 import kotlinx.android.synthetic.main.activity_account.*
 
+/**
+ * @author Silwèk on 12/01/2018
+ */
 class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -21,6 +21,8 @@ import kotlinx.android.synthetic.main.view_chat.view.*
  * This fragment is either contained in a [ChatRoomsActivity]
  * in two-pane mode (on tablets) or a [ChatActivity]
  * on handsets.
+ *
+ * @author Silwèk on 12/01/2018
  */
 class ChatFragment : Fragment() {
 

@@ -1,5 +1,7 @@
 package com.silwek.cleverchat.ui.activities
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -7,13 +9,14 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
+import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import com.silwek.cleverchat.R
-import com.silwek.cleverchat.dummy.DummyContent
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.ui.fragments.ChatFragment
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
 import kotlinx.android.synthetic.main.item_chat.view.*
+
 
 /**
  * An activity representing a list of Pings. This activity
@@ -22,6 +25,8 @@ import kotlinx.android.synthetic.main.item_chat.view.*
  * lead to a [ChatActivity] representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
+ *
+ * @author Silwèk on 12/01/2018
  */
 class ChatRoomsActivity : AppCompatActivity() {
 
@@ -29,7 +34,9 @@ class ChatRoomsActivity : AppCompatActivity() {
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-    private var mTwoPane: Boolean = false
+    private var twoPane: Boolean = false
+
+    private lateinit var chatRoomsAdapter: SimpleItemRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,10 +55,12 @@ class ChatRoomsActivity : AppCompatActivity() {
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
             // activity should be in two-pane mode.
-            mTwoPane = true
+            twoPane = true
         }
 
         setupRecyclerView(chatroom_list)
+        val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java!!)
+        model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -70,36 +79,45 @@ class ChatRoomsActivity : AppCompatActivity() {
         startActivity(Intent(this, AccountActivity::class.java))
     }
 
-    private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.CHATROOMS, mTwoPane)
+    private fun showChat(chat: ChatRoom) {
+        if (twoPane) {
+            val fragment = ChatFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ChatFragment.ARG_CHAT_ID, chat.id)
+                }
+            }
+            supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.chatroom_detail_container, fragment)
+                    .commit()
+        } else {
+            val intent = Intent(this, ChatActivity::class.java).apply {
+                putExtra(ChatFragment.ARG_CHAT_ID, chat.id)
+            }
+            startActivity(intent)
+        }
     }
 
-    class SimpleItemRecyclerViewAdapter(private val mParentActivity: ChatRoomsActivity,
-                                        private val mValues: List<ChatRoom>,
-                                        private val mTwoPane: Boolean) :
+    private fun setupRecyclerView(recyclerView: RecyclerView) {
+        chatRoomsAdapter = SimpleItemRecyclerViewAdapter { showChat(it) }
+        recyclerView.adapter = chatRoomsAdapter
+    }
+
+    class SimpleItemRecyclerViewAdapter(private val onChatClick: (ChatRoom) -> Unit) :
             RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+
+        var values: List<ChatRoom>? = null
+            set (value) {
+                field = value
+                notifyDataSetChanged()
+            }
 
         private val mOnClickListener: View.OnClickListener
 
         init {
             mOnClickListener = View.OnClickListener { v ->
                 val chat = v.tag as ChatRoom
-                if (mTwoPane) {
-                    val fragment = ChatFragment().apply {
-                        arguments = Bundle().apply {
-                            putString(ChatFragment.ARG_CHAT_ID, chat.id)
-                        }
-                    }
-                    mParentActivity.supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.chatroom_detail_container, fragment)
-                            .commit()
-                } else {
-                    val intent = Intent(v.context, ChatActivity::class.java).apply {
-                        putExtra(ChatFragment.ARG_CHAT_ID, chat.id)
-                    }
-                    v.context.startActivity(intent)
-                }
+                onChatClick(chat)
             }
         }
 
@@ -110,17 +128,22 @@ class ChatRoomsActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = mValues[position]
-            holder.mContentView.text = item.name
+            values?.let {
+                val item = values!![position]
+                holder.mContentView.text = item.name
 
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener(mOnClickListener)
+                with(holder.itemView) {
+                    tag = item
+                    setOnClickListener(mOnClickListener)
+                }
             }
         }
 
         override fun getItemCount(): Int {
-            return mValues.size
+            return when (values) {
+                null -> 0
+                else -> values!!.size
+            }
         }
 
         inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {

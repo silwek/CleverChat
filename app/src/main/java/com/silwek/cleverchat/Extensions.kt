@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import com.silwek.cleverchat.ui.activities.SplashscreenActivity
 
 /**
- * Created by Silwèk on 11/01/2018.
+ * @author Silwèk on 12/01/2018
  */
 
 fun AppCompatActivity.setActionBarTitle(actionBarTitle: String) {

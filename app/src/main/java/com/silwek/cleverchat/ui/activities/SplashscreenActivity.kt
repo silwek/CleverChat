@@ -10,7 +10,9 @@ import com.silwek.cleverchat.R
 import org.jetbrains.anko.longToast
 import java.util.*
 
-
+/**
+ * @author Silwèk on 12/01/2018
+ */
 class SplashscreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
