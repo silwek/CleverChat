@@ -26,3 +26,7 @@ fun AppCompatActivity.getLandingActivityIntent(): Intent {
 fun Fragment.getLandingActivityIntent(): Intent? {
     return getCompatActivity()?.getLandingActivityIntent()
 }
+
+fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
+    if (this != null) f(this)
+}

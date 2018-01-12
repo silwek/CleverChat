@@ -26,9 +26,6 @@ import kotlinx.android.synthetic.main.view_chat.view.*
  */
 class ChatFragment : Fragment() {
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
     private var mChat: ChatRoom? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,10 +33,10 @@ class ChatFragment : Fragment() {
 
         arguments?.let {
             if (it.containsKey(ARG_CHAT_ID)) {
-                // Load the dummy content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
-                mChat = DummyContent.CHATROOMS_MAP[it.getString(ARG_CHAT_ID)]
+                mChat = ChatRoom(id = it.getString(ARG_CHAT_ID))
+                if (it.containsKey(ARG_CHAT_NAME)) {
+                    mChat?.name = it.getString(ARG_CHAT_NAME)
+                }
                 getCompatActivity()?.setActionBarTitle(mChat?.name ?: "")
             }
         }
@@ -91,5 +88,10 @@ class ChatFragment : Fragment() {
          * represents.
          */
         const val ARG_CHAT_ID = "chat_id"
+        /**
+         * The fragment argument representing the chat name that this fragment
+         * represents.
+         */
+        const val ARG_CHAT_NAME = "chat_name"
     }
 }

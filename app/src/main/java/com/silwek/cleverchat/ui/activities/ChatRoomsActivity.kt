@@ -9,10 +9,10 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
-import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import com.silwek.cleverchat.R
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.ui.fragments.ChatFragment
+import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
 import kotlinx.android.synthetic.main.item_chat.view.*
@@ -84,6 +84,7 @@ class ChatRoomsActivity : AppCompatActivity() {
             val fragment = ChatFragment().apply {
                 arguments = Bundle().apply {
                     putString(ChatFragment.ARG_CHAT_ID, chat.id)
+                    putString(ChatFragment.ARG_CHAT_NAME, chat.name)
                 }
             }
             supportFragmentManager
@@ -93,6 +94,7 @@ class ChatRoomsActivity : AppCompatActivity() {
         } else {
             val intent = Intent(this, ChatActivity::class.java).apply {
                 putExtra(ChatFragment.ARG_CHAT_ID, chat.id)
+                putExtra(ChatFragment.ARG_CHAT_NAME, chat.name)
             }
             startActivity(intent)
         }

@@ -42,6 +42,8 @@ class ChatActivity : AppCompatActivity() {
                 arguments = Bundle().apply {
                     putString(ChatFragment.ARG_CHAT_ID,
                             intent.getStringExtra(ChatFragment.ARG_CHAT_ID))
+                    putString(ChatFragment.ARG_CHAT_NAME,
+                            intent.getStringExtra(ChatFragment.ARG_CHAT_NAME))
                 }
             }
 

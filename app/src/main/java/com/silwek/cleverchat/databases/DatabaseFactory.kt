@@ -1,4 +1,4 @@
-package com.silwek.cleverchat
+package com.silwek.cleverchat.databases
 
 import com.silwek.cleverchat.databases.FirebaseDatabase
 
