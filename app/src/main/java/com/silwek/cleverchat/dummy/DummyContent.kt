@@ -1,5 +1,7 @@
 package com.silwek.cleverchat.dummy
 
+import com.silwek.cleverchat.models.ChatMessage
+import com.silwek.cleverchat.models.ChatRoom
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -11,12 +13,14 @@ import kotlin.collections.ArrayList
  */
 object DummyContent {
 
-    val CHATROOMS: MutableList<DummyChat> = ArrayList<DummyChat>()
+    val CHATMESSAGES: MutableList<ChatMessage> = ArrayList<ChatMessage>()
+
+    val CHATROOMS: MutableList<ChatRoom> = ArrayList<ChatRoom>()
 
     /**
      * A map of sample (dummy) items, by ID.
      */
-    val CHATROOMS_MAP: MutableMap<String, DummyChat> = HashMap()
+    val CHATROOMS_MAP: MutableMap<String, ChatRoom> = HashMap()
 
     private val COUNT = 25
 
@@ -25,28 +29,29 @@ object DummyContent {
         for (i in 1..COUNT) {
             addChat(i)
         }
+        createDummyMessages(COUNT)
     }
 
     private fun addChat(position: Int) {
-        val chat = createDummyChat(position);
+        val chat = createDummyChat(position)
         CHATROOMS.add(chat)
-        CHATROOMS_MAP.put(chat.id, chat)
+        if (chat.id != null)
+            CHATROOMS_MAP.put(chat.id!!, chat)
+
     }
 
-    private fun createDummyMessages(count: Int): List<DummyMessage> {
-        val messages = ArrayList<DummyMessage>(count)
+    private fun createDummyMessages(count: Int) {
         for (i in 1..COUNT) {
-            messages.add(createDummyMessage(i))
+            CHATMESSAGES.add(createDummyMessage(i))
         }
-        return messages
     }
 
-    private fun createDummyMessage(position: Int): DummyMessage {
-        return DummyMessage(position.toString(), "Message " + position)
+    private fun createDummyMessage(position: Int): ChatMessage {
+        return ChatMessage(message = "Message " + position, id = position.toString())
     }
 
-    private fun createDummyChat(position: Int): DummyChat {
-        return DummyChat(position.toString(), "Chat " + position, createDummyMessages(position))
+    private fun createDummyChat(position: Int): ChatRoom {
+        return ChatRoom(id = position.toString(), name = "Chat " + position)
     }
 
     data class DummyChat(val id: String, val title: String, val messages: List<DummyMessage>) {

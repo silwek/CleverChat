@@ -10,6 +10,8 @@ import android.widget.TextView
 import com.silwek.cleverchat.R
 import com.silwek.cleverchat.dummy.DummyContent
 import com.silwek.cleverchat.getCompatActivity
+import com.silwek.cleverchat.models.ChatMessage
+import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.setActionBarTitle
 import kotlinx.android.synthetic.main.item_message.view.*
 import kotlinx.android.synthetic.main.view_chat.view.*
@@ -25,7 +27,7 @@ class ChatFragment : Fragment() {
     /**
      * The dummy content this fragment is presenting.
      */
-    private var mChat: DummyContent.DummyChat? = null
+    private var mChat: ChatRoom? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +38,7 @@ class ChatFragment : Fragment() {
                 // arguments. In a real-world scenario, use a Loader
                 // to load content from a content provider.
                 mChat = DummyContent.CHATROOMS_MAP[it.getString(ARG_CHAT_ID)]
-                if (mChat != null) {
-                    getCompatActivity()?.setActionBarTitle(mChat!!.title)
-                }
+                getCompatActivity()?.setActionBarTitle(mChat?.name ?: "")
             }
         }
     }
@@ -47,17 +47,16 @@ class ChatFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.view_chat, container, false)
 
-        if (mChat != null)
-            setupRecyclerView(rootView.messages_list, mChat!!.messages)
+        setupRecyclerView(rootView.messages_list, DummyContent.CHATMESSAGES)
 
         return rootView
     }
 
-    private fun setupRecyclerView(recyclerView: RecyclerView, messages: List<DummyContent.DummyMessage>) {
+    private fun setupRecyclerView(recyclerView: RecyclerView, messages: List<ChatMessage>) {
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(messages)
     }
 
-    class SimpleItemRecyclerViewAdapter(private val mValues: List<DummyContent.DummyMessage>) :
+    class SimpleItemRecyclerViewAdapter(private val mValues: List<ChatMessage>) :
             RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -68,7 +67,7 @@ class ChatFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = mValues[position]
-            holder.mContentView.text = item.content
+            holder.mContentView.text = item.message
 
             with(holder.itemView) {
                 tag = item

@@ -9,6 +9,7 @@ import android.view.*
 import android.widget.TextView
 import com.silwek.cleverchat.R
 import com.silwek.cleverchat.dummy.DummyContent
+import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.ui.fragments.ChatFragment
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
@@ -74,7 +75,7 @@ class ChatRoomsActivity : AppCompatActivity() {
     }
 
     class SimpleItemRecyclerViewAdapter(private val mParentActivity: ChatRoomsActivity,
-                                        private val mValues: List<DummyContent.DummyChat>,
+                                        private val mValues: List<ChatRoom>,
                                         private val mTwoPane: Boolean) :
             RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
@@ -82,7 +83,7 @@ class ChatRoomsActivity : AppCompatActivity() {
 
         init {
             mOnClickListener = View.OnClickListener { v ->
-                val chat = v.tag as DummyContent.DummyChat
+                val chat = v.tag as ChatRoom
                 if (mTwoPane) {
                     val fragment = ChatFragment().apply {
                         arguments = Bundle().apply {
@@ -110,7 +111,7 @@ class ChatRoomsActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = mValues[position]
-            holder.mContentView.text = item.title
+            holder.mContentView.text = item.name
 
             with(holder.itemView) {
                 tag = item
