@@ -1,15 +1,15 @@
-package com.silwek.cleverchat
+package com.silwek.cleverchat.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
+import com.silwek.cleverchat.R
 import com.silwek.cleverchat.dummy.DummyContent
+import com.silwek.cleverchat.ui.fragments.ChatFragment
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
 import kotlinx.android.synthetic.main.item_chat.view.*
@@ -51,6 +51,22 @@ class ChatRoomsActivity : AppCompatActivity() {
         }
 
         setupRecyclerView(chatroom_list)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.home_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.menu_account -> goToAccountActivity()
+        }
+        return true
+    }
+
+    private fun goToAccountActivity() {
+        startActivity(Intent(this, AccountActivity::class.java))
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {

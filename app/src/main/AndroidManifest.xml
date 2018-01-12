@@ -10,21 +10,35 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ChatRoomsActivity"
-            android:label="@string/title_chatroom_list"
+            android:name=".ui.activities.SplashscreenActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChatActivity"
-            android:parentActivityName=".ChatRoomsActivity"
+            android:name=".ui.activities.ChatRoomsActivity"
+            android:label="@string/title_chatroom_list"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".ui.activities.ChatActivity"
+            android:parentActivityName=".ui.activities.ChatRoomsActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.silwek.cleverchat.ChatRoomsActivity"/>
+                android:value="com.silwek.cleverchat.ui.activities.ChatRoomsActivity"/>
+        </activity>
+        <activity
+            android:name=".ui.activities.AccountActivity"
+            android:label="@string/title_activity_account"
+            android:parentActivityName=".ui.activities.ChatRoomsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.silwek.cleverchat.ui.activities.ChatRoomsActivity"/>
         </activity>
     </application>
 

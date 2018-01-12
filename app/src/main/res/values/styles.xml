@@ -9,4 +9,59 @@
         <item name="android:background">@drawable/chat_bubble</item>
     </style>
 
+    <style name="Form">
+        <item name="android:padding">@dimen/margin_normal</item>
+    </style>
+
+    <style name="Form.Label" parent="Text.Body2">
+        <item name="android:gravity">end</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="Form.Field" parent="Text.Body1">
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="Text">
+    </style>
+
+    <style name="Text.Display1">
+        <!-- Regular -->
+        <item name="android:textSize">@dimen/text_huge</item>
+    </style>
+
+    <style name="Text.Heading">
+        <!-- Medium -->
+        <item name="android:textSize">@dimen/text_xlarge</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Text.SubHeading">
+        <!-- Regular -->
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="Text.Body2">
+        <!-- Medium -->
+        <item name="android:textSize">@dimen/text_normal</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Text.Body1">
+        <!-- Regular -->
+        <item name="android:textSize">@dimen/text_normal</item>
+    </style>
+
+    <style name="Text.Caption">
+        <!-- Regular -->
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+
+    <style name="Text.Button">
+        <!-- Medium -->
+        <item name="android:textSize">@dimen/text_normal</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
 </resources>

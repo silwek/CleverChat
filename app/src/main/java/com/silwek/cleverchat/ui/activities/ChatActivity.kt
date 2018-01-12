@@ -1,9 +1,11 @@
-package com.silwek.cleverchat
+package com.silwek.cleverchat.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.silwek.cleverchat.ui.fragments.ChatFragment
+import com.silwek.cleverchat.R
 import kotlinx.android.synthetic.main.activity_chat.*
 
 /**
