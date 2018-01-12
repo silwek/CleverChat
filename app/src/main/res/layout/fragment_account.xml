@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/margin_normal"
+    tools:context="com.silwek.cleverchat.ui.fragments.AccountFragment"
+    tools:showIn="@layout/activity_account">
+
+
+    <TextView
+        android:id="@+id/label_displayName"
+        style="@style/Form.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/form_label_display_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/fieldDisplayName"
+        style="@style/Form.Field"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:text="Mon nom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/label_displayName"
+        app:layout_constraintTop_toTopOf="@+id/label_displayName"/>
+
+    <TextView
+        android:id="@+id/label_email"
+        style="@style/Form.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:text="@string/form_label_email"
+        app:layout_constraintEnd_toEndOf="@+id/label_displayName"
+        app:layout_constraintTop_toBottomOf="@+id/label_displayName"/>
+
+    <TextView
+        android:id="@+id/fieldEmail"
+        style="@style/Form.Field"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:text="an.email@mail.com"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/label_email"
+        app:layout_constraintTop_toTopOf="@+id/label_email"/>
+
+    <Button
+        android:id="@+id/btSignOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_normal"
+        android:text="@string/button_sign_out"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_email"/>
+</android.support.constraint.ConstraintLayout>

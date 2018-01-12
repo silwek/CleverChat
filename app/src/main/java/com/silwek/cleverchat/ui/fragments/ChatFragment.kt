@@ -1,4 +1,4 @@
-package com.silwek.cleverchat
+package com.silwek.cleverchat.ui.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -7,7 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.silwek.cleverchat.R
 import com.silwek.cleverchat.dummy.DummyContent
+import com.silwek.cleverchat.getCompatActivity
+import com.silwek.cleverchat.setActionBarTitle
 import kotlinx.android.synthetic.main.item_message.view.*
 import kotlinx.android.synthetic.main.view_chat.view.*
 
