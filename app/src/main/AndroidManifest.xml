@@ -40,6 +40,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.silwek.cleverchat.ui.activities.ChatRoomsActivity"/>
         </activity>
+        <activity
+            android:name=".ui.activities.CreateChatActivity"
+            android:label="@string/title_activity_create_chat"
+            android:parentActivityName=".ui.activities.ChatRoomsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.silwek.cleverchat.ui.activities.ChatRoomsActivity"/>
+        </activity>
     </application>
 
 </manifest>

@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import com.silwek.cleverchat.ui.activities.SplashscreenActivity
 
 /**
- * Created by Amandine Ferrand on 11/01/2018.
+ * @author Silwèk on 12/01/2018
  */
 
 fun AppCompatActivity.setActionBarTitle(actionBarTitle: String) {
@@ -25,4 +25,8 @@ fun AppCompatActivity.getLandingActivityIntent(): Intent {
 
 fun Fragment.getLandingActivityIntent(): Intent? {
     return getCompatActivity()?.getLandingActivityIntent()
+}
+
+fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
+    if (this != null) f(this)
 }
