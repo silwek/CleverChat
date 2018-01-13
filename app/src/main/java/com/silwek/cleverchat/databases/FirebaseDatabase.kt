@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.database.FirebaseDatabase
+import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.models.ChatUser
 import com.silwek.cleverchat.notNull
@@ -134,10 +135,21 @@ class FirebaseDatabase : AnkoLogger {
         return membersMap
     }
 
+    fun sendMessage(chatId: String, content: String, onSuccess: () -> Unit) {
+        val author = getCurrentUser()
+        author.notNull {
+            val message = ChatMessage(content, it.uid, it.displayName ?: "", Date().time)
+            val messageNode = database.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).push()
+            messageNode.setValue(message)
+            onSuccess()
+        }
+    }
+
     companion object {
         val NODE_ROOT = "chat"
         val NODE_CHATS = "chats"
         val NODE_MEMBERS = "members"
         val NODE_USERS = "users"
+        val NODE_MESSAGES = "messages"
     }
 }

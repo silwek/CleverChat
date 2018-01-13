@@ -8,12 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.silwek.cleverchat.R
+import com.silwek.cleverchat.databases.DatabaseFactory
 import com.silwek.cleverchat.dummy.DummyContent
 import com.silwek.cleverchat.getCompatActivity
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
+import com.silwek.cleverchat.notNull
 import com.silwek.cleverchat.setActionBarTitle
 import kotlinx.android.synthetic.main.item_message.view.*
+import kotlinx.android.synthetic.main.view_chat.*
 import kotlinx.android.synthetic.main.view_chat.view.*
 
 /**
@@ -26,18 +29,18 @@ import kotlinx.android.synthetic.main.view_chat.view.*
  */
 class ChatFragment : Fragment() {
 
-    private var mChat: ChatRoom? = null
+    private var chat: ChatRoom? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
             if (it.containsKey(ARG_CHAT_ID)) {
-                mChat = ChatRoom(id = it.getString(ARG_CHAT_ID))
+                chat = ChatRoom(id = it.getString(ARG_CHAT_ID))
                 if (it.containsKey(ARG_CHAT_NAME)) {
-                    mChat?.name = it.getString(ARG_CHAT_NAME)
+                    chat?.name = it.getString(ARG_CHAT_NAME)
                 }
-                getCompatActivity()?.setActionBarTitle(mChat?.name ?: "")
+                getCompatActivity()?.setActionBarTitle(chat?.name ?: "")
             }
         }
     }
@@ -46,7 +49,14 @@ class ChatFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.view_chat, container, false)
 
-        setupRecyclerView(rootView.messages_list, DummyContent.CHATMESSAGES)
+        setupRecyclerView(rootView.messagesList, DummyContent.CHATMESSAGES)
+        rootView.btSend.setOnClickListener {
+            val message = fieldMessage.text.toString()
+            val chatId = chat?.id
+            chatId.notNull {
+                DatabaseFactory.firebaseDatabase.sendMessage(it, message, { fieldMessage.setText("") })
+            }
+        }
 
         return rootView
     }
