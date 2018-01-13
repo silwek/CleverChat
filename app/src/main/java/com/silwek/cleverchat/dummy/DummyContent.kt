@@ -10,6 +10,7 @@ import com.silwek.cleverchat.models.ChatMessage
  */
 object DummyContent {
 
+
     val CHATMESSAGES: MutableList<ChatMessage> = ArrayList<ChatMessage>()
 
     private val COUNT = 25

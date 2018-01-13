@@ -4,14 +4,15 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
 import com.silwek.cleverchat.R
 import com.silwek.cleverchat.models.ChatRoom
+import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
 import com.silwek.cleverchat.ui.fragments.ChatFragment
+import com.silwek.cleverchat.ui.fragments.CreateChatFragment
 import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
@@ -46,8 +47,7 @@ class ChatRoomsActivity : AppCompatActivity() {
         toolbar.title = title
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "New chat is coming", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+            goToCreateChatActivity()
         }
 
         if (chatroom_detail_container != null) {
@@ -79,6 +79,10 @@ class ChatRoomsActivity : AppCompatActivity() {
         startActivity(Intent(this, AccountActivity::class.java))
     }
 
+    private fun goToCreateChatActivity() {
+        startActivityForResult(Intent(this, CreateChatActivity::class.java), REQUEST_CREATE_CHAT)
+    }
+
     private fun showChat(chat: ChatRoom) {
         if (twoPane) {
             val fragment = ChatFragment().apply {
@@ -105,51 +109,32 @@ class ChatRoomsActivity : AppCompatActivity() {
         recyclerView.adapter = chatRoomsAdapter
     }
 
-    class SimpleItemRecyclerViewAdapter(private val onChatClick: (ChatRoom) -> Unit) :
-            RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-
-        var values: List<ChatRoom>? = null
-            set (value) {
-                field = value
-                notifyDataSetChanged()
-            }
-
-        private val mOnClickListener: View.OnClickListener
-
-        init {
-            mOnClickListener = View.OnClickListener { v ->
-                val chat = v.tag as ChatRoom
-                onChatClick(chat)
-            }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CREATE_CHAT) {
+            val chatId = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_ID)
+            val chatName = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_NAME)
+            val chat = ChatRoom(name = chatName, id = chatId)
+            showChat(chat)
         }
+    }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    class SimpleItemRecyclerViewAdapter(onItemClick: (ChatRoom) -> Unit) :
+            SimpleRecyclerViewAdapter<ChatRoom, SimpleItemRecyclerViewAdapter.ViewHolder>(onItemClick) {
+        override fun createView(parent: ViewGroup): SimpleItemRecyclerViewAdapter.ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_chat, parent, false)
             return ViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            values?.let {
-                val item = values!![position]
-                holder.mContentView.text = item.name
-
-                with(holder.itemView) {
-                    tag = item
-                    setOnClickListener(mOnClickListener)
-                }
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return when (values) {
-                null -> 0
-                else -> values!!.size
-            }
+        override fun bind(holder: SimpleItemRecyclerViewAdapter.ViewHolder, item: ChatRoom, position: Int) {
+            holder.mContentView.text = item.name
         }
 
         inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
             val mContentView: TextView = mView.content
         }
     }
+
+    private val REQUEST_CREATE_CHAT = 2106
 }
