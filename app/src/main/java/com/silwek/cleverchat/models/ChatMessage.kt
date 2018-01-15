@@ -4,4 +4,4 @@ package com.silwek.cleverchat.models
  * @author Silwèk on 12/01/2018
  */
 data class ChatMessage(
-        var message: String? = null, var authorId: String? = null, var authorName: String? = null, var id: String? = null)
+        var message: String = "", var authorId: String = "", var authorName: String = "", val date: Long = 0, var id: String? = null)

@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.database.FirebaseDatabase
+import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.models.ChatUser
 import com.silwek.cleverchat.notNull
@@ -20,6 +21,8 @@ class FirebaseDatabase : AnkoLogger {
     private val database: DatabaseReference by lazy {
         FirebaseDatabase.getInstance().reference;
     }
+    private var messageQuery: Query? = null
+    private var messageUpdateListener: ChildEventListener? = null
 
     fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
@@ -134,10 +137,71 @@ class FirebaseDatabase : AnkoLogger {
         return membersMap
     }
 
+    fun sendMessage(chatId: String, content: String, onSuccess: () -> Unit) {
+        val author = getCurrentUser()
+        author.notNull {
+            val message = ChatMessage(content, it.uid, it.displayName ?: "", Date().time)
+            val messageNode = database.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).push()
+            messageNode.setValue(message)
+            onSuccess()
+        }
+    }
+
+
+    fun getChatMessages(chatId: String,
+                        onMessageAdded: (ChatMessage, String?) -> Unit,
+                        onMessageRemoved: (ChatMessage, String?) -> Unit) {
+        messageQuery = database.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).orderByChild("date")
+        messageUpdateListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+                if (dataSnapshot != null)
+                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                        onMessageAdded(it, previousChildName)
+                    }
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
+                if (dataSnapshot != null)
+                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                        onMessageRemoved(it, dataSnapshot.key)
+                    }
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError?) {
+
+            }
+        }
+        messageQuery?.addChildEventListener(messageUpdateListener)
+
+    }
+
+    fun stopGetChatMessages() {
+        if (messageQuery != null && messageUpdateListener != null) {
+            messageQuery?.removeEventListener(messageUpdateListener);
+            messageUpdateListener = null;
+        }
+    }
+
+    private fun convertToMessage(messageSnapshot: DataSnapshot, key: String): ChatMessage? {
+        val message = messageSnapshot.getValue(ChatMessage::class.java)
+        message?.id = key
+        return message
+    }
+
     companion object {
         val NODE_ROOT = "chat"
         val NODE_CHATS = "chats"
         val NODE_MEMBERS = "members"
         val NODE_USERS = "users"
+        val NODE_MESSAGES = "messages"
     }
+
 }

@@ -1,6 +1,7 @@
 package com.silwek.cleverchat.dummy
 
 import com.silwek.cleverchat.models.ChatMessage
+import java.util.*
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -26,6 +27,6 @@ object DummyContent {
     }
 
     private fun createDummyMessage(position: Int): ChatMessage {
-        return ChatMessage(message = "Message " + position, id = position.toString())
+        return ChatMessage(message = "Message " + position, id = position.toString(), authorId = "lambda", authorName = "Lambda guy", date = Date().time)
     }
 }

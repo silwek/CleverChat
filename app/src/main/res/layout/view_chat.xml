@@ -10,11 +10,12 @@
               tools:listitem="@layout/item_message">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/messages_list"
+        android:id="@+id/messagesList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         app:layoutManager="LinearLayoutManager"
+        app:reverseLayout="true"
         tools:listitem="@layout/item_message"/>
 
     <LinearLayout
@@ -27,11 +28,13 @@
         android:paddingTop="@dimen/padding_normal">
 
         <EditText
+            android:id="@+id/fieldMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
 
         <ImageButton
+            android:id="@+id/btSend"
             android:layout_width="@dimen/chat_send_button"
             android:layout_height="@dimen/chat_send_button"
             android:background="@null"
