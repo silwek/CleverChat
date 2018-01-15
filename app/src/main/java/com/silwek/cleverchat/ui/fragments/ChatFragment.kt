@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.silwek.cleverchat.R
 import com.silwek.cleverchat.databases.DatabaseFactory
-import com.silwek.cleverchat.dummy.DummyContent
 import com.silwek.cleverchat.getCompatActivity
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
@@ -55,7 +54,7 @@ class ChatFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.view_chat, container, false)
 
-        setupRecyclerView(rootView.messagesList, DummyContent.CHATMESSAGES)
+        setupRecyclerView(rootView.messagesList)
 
         val model = ViewModelProviders.of(this).get(ChatMessagesViewModel::class.java!!)
         model.chatId = chat?.id
@@ -72,7 +71,7 @@ class ChatFragment : Fragment() {
         return rootView
     }
 
-    private fun setupRecyclerView(recyclerView: RecyclerView, messages: List<ChatMessage>) {
+    private fun setupRecyclerView(recyclerView: RecyclerView) {
         messagesAdapter = SimpleItemRecyclerViewAdapter({
 
         })
