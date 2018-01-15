@@ -1,5 +1,6 @@
 package com.silwek.cleverchat.ui.activities
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
@@ -111,7 +112,7 @@ class ChatRoomsActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CREATE_CHAT) {
+        if (requestCode == REQUEST_CREATE_CHAT && resultCode == Activity.RESULT_OK) {
             val chatId = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_ID)
             val chatName = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_NAME)
             val chat = ChatRoom(name = chatName, id = chatId)
