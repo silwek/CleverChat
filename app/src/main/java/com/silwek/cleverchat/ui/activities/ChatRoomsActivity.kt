@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
 import com.silwek.cleverchat.R
+import com.silwek.cleverchat.databases.DatabaseFactory
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
 import com.silwek.cleverchat.ui.fragments.ChatFragment
@@ -62,6 +63,7 @@ class ChatRoomsActivity : AppCompatActivity() {
         setupRecyclerView(chatroom_list)
         val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java!!)
         model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
+        DatabaseFactory.firebaseDatabase.insertChatUserIfNeeded()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -196,6 +196,29 @@ class FirebaseDatabase : AnkoLogger {
         return message
     }
 
+    fun insertChatUserIfNeeded() {
+        val user = getCurrentUser()
+        user?.let {
+            val chatUserId = user.uid;
+            val chatUser = ChatUser(user.displayName)
+
+            database.child(NODE_ROOT).child(NODE_USERS).child(chatUserId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                    if (dataSnapshot?.value == null) {
+                        database.updateChildren(mapOf(Pair("/$NODE_ROOT/$NODE_USERS/${chatUserId}", chatUser)))
+                    }
+                }
+
+            })
+
+
+        }
+    }
+
     companion object {
         val NODE_ROOT = "chat"
         val NODE_CHATS = "chats"
