@@ -21,6 +21,8 @@ class FirebaseDatabase : AnkoLogger {
     private val database: DatabaseReference by lazy {
         FirebaseDatabase.getInstance().reference;
     }
+    private var messageQuery: Query? = null
+    private var messageUpdateListener: ChildEventListener? = null
 
     fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
@@ -145,6 +147,55 @@ class FirebaseDatabase : AnkoLogger {
         }
     }
 
+
+    fun getChatMessages(chatId: String,
+                        onMessageAdded: (ChatMessage, String?) -> Unit,
+                        onMessageRemoved: (ChatMessage, String?) -> Unit) {
+        messageQuery = database.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).orderByChild("date")
+        messageUpdateListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+                if (dataSnapshot != null)
+                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                        onMessageAdded(it, previousChildName)
+                    }
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
+                if (dataSnapshot != null)
+                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                        onMessageRemoved(it, dataSnapshot.key)
+                    }
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError?) {
+
+            }
+        }
+        messageQuery?.addChildEventListener(messageUpdateListener)
+
+    }
+
+    fun stopGetChatMessages() {
+        if (messageQuery != null && messageUpdateListener != null) {
+            messageQuery?.removeEventListener(messageUpdateListener);
+            messageUpdateListener = null;
+        }
+    }
+
+    private fun convertToMessage(messageSnapshot: DataSnapshot, key: String): ChatMessage? {
+        val message = messageSnapshot.getValue(ChatMessage::class.java)
+        message?.id = key
+        return message
+    }
+
     companion object {
         val NODE_ROOT = "chat"
         val NODE_CHATS = "chats"
@@ -152,4 +203,5 @@ class FirebaseDatabase : AnkoLogger {
         val NODE_USERS = "users"
         val NODE_MESSAGES = "messages"
     }
+
 }

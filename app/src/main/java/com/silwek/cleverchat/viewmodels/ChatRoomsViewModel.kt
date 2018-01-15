@@ -15,12 +15,12 @@ class ChatRoomsViewModel() : ViewModel() {
     fun getChatRooms(): LiveData<List<ChatRoom>>? {
         if (chatRooms == null) {
             chatRooms = MutableLiveData<List<ChatRoom>>()
-            loadUsers()
+            loadRooms()
         }
         return chatRooms
     }
 
-    private fun loadUsers() {
+    private fun loadRooms() {
         DatabaseFactory.firebaseDatabase.getChatRoomsForUser({ chatRooms?.value = it })
     }
 }
