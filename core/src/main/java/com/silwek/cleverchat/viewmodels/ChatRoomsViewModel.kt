@@ -3,7 +3,7 @@ package com.silwek.cleverchat.viewmodels
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.silwek.cleverchat.databases.DatabaseFactory
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatRoom
 
 
@@ -21,6 +21,6 @@ class ChatRoomsViewModel() : ViewModel() {
     }
 
     private fun loadRooms() {
-        DatabaseFactory.firebaseDatabase.getChatRoomsForUser({ chatRooms?.value = it })
+        getDatabaseFactory().getChatDatabase()?.getChatRoomsForUser({ chatRooms?.value = it })
     }
 }

@@ -2,7 +2,7 @@ package com.silwek.cleverchat.viewmodels
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
-import com.silwek.cleverchat.databases.DatabaseFactory
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.notNull
 
@@ -19,7 +19,7 @@ class ChatMessagesViewModel() : ViewModel() {
                         loadMessages()
                     },
                     onInactiveObserver = {
-                        DatabaseFactory.firebaseDatabase.stopGetChatMessages()
+                        getDatabaseFactory().getChatDatabase()?.stopGetChatMessages()
                     })
 
         }
@@ -28,7 +28,7 @@ class ChatMessagesViewModel() : ViewModel() {
 
     private fun loadMessages() {
         chatId.notNull {
-            DatabaseFactory.firebaseDatabase.getChatMessages(it,
+            getDatabaseFactory().getChatDatabase()?.getChatMessages(it,
                     onMessageAdded = { chatMessage, previousId ->
                         val messages = chatMessages?.value?.toMutableList() ?: ArrayList(1)
                         if (!messages.contains(chatMessage)) {

@@ -9,8 +9,9 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
+import com.silwek.cleverchat.CoreApplication
 import com.silwek.cleverchat.R
-import com.silwek.cleverchat.databases.DatabaseFactory
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
 import com.silwek.cleverchat.ui.fragments.ChatFragment
@@ -63,7 +64,7 @@ class ChatRoomsActivity : AppCompatActivity() {
         setupRecyclerView(chatroom_list)
         val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java!!)
         model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
-        DatabaseFactory.firebaseDatabase.insertChatUserIfNeeded()
+        getDatabaseFactory().getFriendsDatabase()?.insertChatUserIfNeeded()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -79,7 +80,7 @@ class ChatRoomsActivity : AppCompatActivity() {
     }
 
     private fun goToAccountActivity() {
-        startActivity(Intent(this, AccountActivity::class.java))
+        startActivity(CoreApplication.instance.getAccountIntent())
     }
 
     private fun goToCreateChatActivity() {
@@ -124,13 +125,13 @@ class ChatRoomsActivity : AppCompatActivity() {
 
     class SimpleItemRecyclerViewAdapter(onItemClick: (ChatRoom) -> Unit) :
             SimpleRecyclerViewAdapter<ChatRoom, SimpleItemRecyclerViewAdapter.ViewHolder>(onItemClick) {
-        override fun createView(parent: ViewGroup): SimpleItemRecyclerViewAdapter.ViewHolder {
+        override fun createView(parent: ViewGroup): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_chat, parent, false)
             return ViewHolder(view)
         }
 
-        override fun bind(holder: SimpleItemRecyclerViewAdapter.ViewHolder, item: ChatRoom, position: Int) {
+        override fun bind(holder: ViewHolder, item: ChatRoom, position: Int) {
             holder.mContentView.text = item.name
         }
 

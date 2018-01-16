@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CleverChat</string>
+
+    <string name="title_chatroom_list">@string/app_name</string>
+    <string name="menu_item_account">My compte</string>
+
+    <string name="title_activity_create_chat">Create a chat</string>
+    <string name="form_label_chat_name">Chat title</string>
+    <string name="form_label_chat_members">Members</string>
+    <string name="menu_action_create_chat">Create</string>
+</resources>

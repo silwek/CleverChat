@@ -10,13 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.silwek.cleverchat.R
-import com.silwek.cleverchat.databases.DatabaseFactory
-import com.silwek.cleverchat.getCompatActivity
+import com.silwek.cleverchat.*
+import com.silwek.cleverchat.databases.CoreDatabaseFactory
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
-import com.silwek.cleverchat.notNull
-import com.silwek.cleverchat.setActionBarTitle
 import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
 import com.silwek.cleverchat.viewmodels.ChatMessagesViewModel
 import kotlinx.android.synthetic.main.item_message.view.*
@@ -64,7 +61,7 @@ class ChatFragment : Fragment() {
             val message = fieldMessage.text.toString()
             val chatId = chat?.id
             chatId.notNull {
-                DatabaseFactory.firebaseDatabase.sendMessage(it, message, { fieldMessage.setText("") })
+                CoreDatabaseFactory.firebaseDatabase.sendMessage(it, message, { fieldMessage.setText("") })
             }
         }
 
@@ -76,19 +73,19 @@ class ChatFragment : Fragment() {
 
         })
         recyclerView.adapter = messagesAdapter
-        messagesAdapter?.userId = DatabaseFactory.firebaseDatabase.getCurrentUserId()
+        messagesAdapter?.userId = getDatabaseFactory().getUserDatabase()?.getCurrentUserId()
     }
 
     class SimpleItemRecyclerViewAdapter(onItemClick: (ChatMessage) -> Unit) :
             SimpleRecyclerViewAdapter<ChatMessage, SimpleItemRecyclerViewAdapter.ViewHolder>(onItemClick) {
         var userId: String? = null
-        override fun createView(parent: ViewGroup): SimpleItemRecyclerViewAdapter.ViewHolder {
+        override fun createView(parent: ViewGroup): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_message, parent, false)
             return ViewHolder(view)
         }
 
-        override fun bind(holder: SimpleItemRecyclerViewAdapter.ViewHolder, item: ChatMessage, position: Int) {
+        override fun bind(holder: ViewHolder, item: ChatMessage, position: Int) {
             holder.contentView.text = item.message
             if (item.authorId == userId)
                 holder.container.gravity = Gravity.END or Gravity.RIGHT

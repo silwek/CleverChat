@@ -9,14 +9,6 @@ import com.silwek.cleverchat.ui.activities.SplashscreenActivity
  * @author Silwèk on 12/01/2018
  */
 
-fun AppCompatActivity.setActionBarTitle(actionBarTitle: String) {
-    supportActionBar?.title = actionBarTitle
-}
-
-fun Fragment.getCompatActivity(): AppCompatActivity? {
-    return activity as AppCompatActivity?
-}
-
 fun AppCompatActivity.getLandingActivityIntent(): Intent {
     val i = Intent(this, SplashscreenActivity::class.java)
     i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -25,8 +17,4 @@ fun AppCompatActivity.getLandingActivityIntent(): Intent {
 
 fun Fragment.getLandingActivityIntent(): Intent? {
     return getCompatActivity()?.getLandingActivityIntent()
-}
-
-fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
-    if (this != null) f(this)
 }

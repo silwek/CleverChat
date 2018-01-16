@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.firebase.ui.auth.AuthUI
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.silwek.cleverchat.R
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.getLandingActivityIntent
 import kotlinx.android.synthetic.main.fragment_account.*
 
@@ -24,11 +25,12 @@ class AccountFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val user = FirebaseAuth.getInstance().currentUser
+        val user = getDatabaseFactory().getUserDatabase()?.getCurrentUser()
         user?.let {
+            val authUser = user.authObject as FirebaseUser
             with(user) {
-                fieldDisplayName.text = displayName ?: ""
-                fieldEmail.text = email ?: ""
+                fieldDisplayName.text = name ?: ""
+                fieldEmail.text = authUser.email ?: ""
             }
         }
         btSignOut.setOnClickListener {

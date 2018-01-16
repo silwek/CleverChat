@@ -1,14 +1,25 @@
 package com.silwek.cleverchat.databases
 
-import com.silwek.cleverchat.databases.FirebaseDatabase
-
 /**
  * @author Silwèk on 12/01/2018
  */
-class DatabaseFactory {
+class DatabaseFactory : CoreDatabaseFactory() {
+
     companion object {
-        val firebaseDatabase: FirebaseDatabase by lazy {
-            FirebaseDatabase()
+        val USER_DATABASE: IUserDatabase by lazy {
+            UserDatabase()
+        }
+        val FRIENDS_DATABASE: IFriendsDatabase by lazy {
+            FriendsDatabase()
         }
     }
+
+    override fun getUserDatabase(): IUserDatabase? {
+        return USER_DATABASE
+    }
+
+    override fun getFriendsDatabase(): IFriendsDatabase? {
+        return FRIENDS_DATABASE
+    }
+
 }

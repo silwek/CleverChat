@@ -3,9 +3,4 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="chatBubble">#bbbbbb</color>
-    <color name="white">@android:color/white</color>
-    <color name="black">@android:color/black</color>
-    <color name="text">@color/black</color>
-    <color name="lighttext">#aaaaaa</color>
 </resources>

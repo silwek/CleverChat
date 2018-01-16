@@ -7,7 +7,6 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.silwek.cleverchat.R
-import org.jetbrains.anko.longToast
 import java.util.*
 
 /**
@@ -42,9 +41,6 @@ class SplashscreenActivity : AppCompatActivity() {
 
             if (resultCode == RESULT_OK) {
                 goToMainScreen()
-                // ...
-            } else {
-                response?.let { longToast(it.toString()) }
             }
         }
     }

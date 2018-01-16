@@ -9,7 +9,8 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.silwek.cleverchat.R
-import com.silwek.cleverchat.databases.DatabaseFactory
+import com.silwek.cleverchat.databases.CoreDatabaseFactory
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatUser
 import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
 import com.silwek.cleverchat.viewmodels.ChatUserFriendsViewModel
@@ -63,10 +64,10 @@ class CreateChatFragment : Fragment() {
     private fun createChat() {
         if (fieldName != null && chatUserFriendsAdapter.friendsList.isNotEmpty()) {
             val name = fieldName.text.toString();
-            val user = DatabaseFactory.firebaseDatabase.getCurrentUser()
+            val user = getDatabaseFactory().getUserDatabase()?.getCurrentUser()
             val members = chatUserFriendsAdapter.friendsList.toMutableList()
-            members.add(ChatUser(user?.displayName, user?.uid))
-            DatabaseFactory.firebaseDatabase.createChat(name, members, {
+            members.add(ChatUser(user?.name, user?.id))
+            CoreDatabaseFactory.firebaseDatabase.createChat(name, members, {
                 val i = Intent().apply {
                     putExtra(RESULT_CHAT_ID, it)
                     putExtra(RESULT_CHAT_NAME, name)
@@ -92,13 +93,13 @@ class CreateChatFragment : Fragment() {
                 notifyItemChanged(values!!.indexOf(user))
         }
 
-        override fun createView(parent: ViewGroup): SimpleItemRecyclerViewAdapter.ViewHolder {
+        override fun createView(parent: ViewGroup): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_chat_user, parent, false)
             return ViewHolder(view)
         }
 
-        override fun bind(holder: SimpleItemRecyclerViewAdapter.ViewHolder, item: ChatUser, position: Int) {
+        override fun bind(holder: ViewHolder, item: ChatUser, position: Int) {
             holder.contentView.text = item.name
             holder.contentCheck.isChecked = friendsList.contains(item)
         }
