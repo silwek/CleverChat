@@ -2,12 +2,12 @@ package com.silwek.cleverchat.databases
 
 import com.google.firebase.database.*
 import com.google.firebase.database.FirebaseDatabase
+import com.silwek.cleverchat.CoreApplication
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_CHATS
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_MEMBERS
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_MESSAGES
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_ROOT
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_USERS
-import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.models.ChatUser
@@ -20,10 +20,10 @@ import java.util.*
 /**
  * @author Silwèk on 12/01/2018
  */
-class FirebaseDatabase : AnkoLogger, IChatDatabase {
+class FirebaseDatabase(private val firebaseInstance: FirebaseDatabase = FirebaseDatabase.getInstance(), private val dbFactory: CoreDatabaseFactory = CoreApplication.getDatabaseFactory()) : AnkoLogger, IChatDatabase {
 
     private val DATABASE: DatabaseReference by lazy {
-        FirebaseDatabase.getInstance().reference;
+        firebaseInstance.reference
     }
 
     private var messageQuery: Query? = null
@@ -34,9 +34,9 @@ class FirebaseDatabase : AnkoLogger, IChatDatabase {
     }
 
     override fun getChatRoomsForUser(onResult: (List<ChatRoom>) -> Unit) {
-        val userId = getDatabaseFactory().getUserDatabase()?.getCurrentUserId()
+        val userId = dbFactory.getUserDatabase()?.getCurrentUserId()
         when (userId) {
-            null -> ArrayList<ChatRoom>(0)
+            null -> onResult(ArrayList<ChatRoom>(0))
             else -> loadChatRoomsForUser(userId, onResult)
         }
     }
@@ -84,25 +84,27 @@ class FirebaseDatabase : AnkoLogger, IChatDatabase {
     }
 
     override fun createChat(name: String, members: List<ChatUser>, onResult: (String) -> Unit) {
-        //Create new chat
-        val chatsNode = DATABASE.child(NODE_ROOT).child(NODE_CHATS)
-        val chatNode = chatsNode.push()
-        val chatId = chatNode.getKey()
-        val chat = ChatRoom(name = name)
-        chatNode.setValue(chat)
+        if (name.isNotBlank() && members.isNotEmpty()) {
+            //Create new chat
+            val chatsNode = DATABASE.child(NODE_ROOT).child(NODE_CHATS)
+            val chatNode = chatsNode.push()
+            val chatId = chatNode.getKey()
+            val chat = ChatRoom(name = name)
+            chatNode.setValue(chat)
 
-        //Init members
-        val memberMaps = buildChatMembers(members)
-        val membersNode = DATABASE.child(NODE_ROOT).child(NODE_MEMBERS).child(chatId)
-        membersNode.setValue(memberMaps)
+            //Init members
+            val memberMaps = buildChatMembers(members)
+            val membersNode = DATABASE.child(NODE_ROOT).child(NODE_MEMBERS).child(chatId)
+            membersNode.setValue(memberMaps)
 
-        //Update users
-        members.forEach {
-            if (it.id != null)
-                DATABASE.updateChildren(mapOf(Pair("/$NODE_ROOT/$NODE_USERS/${it.id}/$NODE_CHATS/$chatId", true)))
+            //Update users
+            members.forEach {
+                if (it.id != null)
+                    DATABASE.updateChildren(mapOf(Pair("/$NODE_ROOT/$NODE_USERS/${it.id}/$NODE_CHATS/$chatId", true)))
+            }
+
+            onResult(chatId)
         }
-
-        onResult(chatId)
     }
 
     private fun buildChatMembers(members: List<ChatUser>): Map<String, Boolean> {
@@ -115,48 +117,51 @@ class FirebaseDatabase : AnkoLogger, IChatDatabase {
     }
 
     override fun sendMessage(chatId: String, content: String, onSuccess: () -> Unit) {
-        val author = getDatabaseFactory().getUserDatabase()?.getCurrentUser()
-        author.notNull {
-            val message = ChatMessage(content, it.id ?: "", it.name ?: "", Date().time)
-            val messageNode = DATABASE.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).push()
-            messageNode.setValue(message)
-            onSuccess()
+        if (chatId.isNotBlank() && content.isNotBlank()) {
+            val author = dbFactory.getUserDatabase()?.getCurrentUser()
+            author.notNull {
+                val message = ChatMessage(content, it.id ?: "", it.name ?: "", Date().time)
+                val messageNode = DATABASE.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).push()
+                messageNode.setValue(message)
+                onSuccess()
+            }
         }
     }
-
 
     override fun getChatMessages(chatId: String,
                                  onMessageAdded: (ChatMessage, String?) -> Unit,
                                  onMessageRemoved: (ChatMessage, String?) -> Unit) {
-        messageQuery = DATABASE.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).orderByChild("date")
-        messageUpdateListener = object : ChildEventListener {
-            override fun onChildAdded(dataSnapshot: DataSnapshot?, previousChildName: String?) {
-                if (dataSnapshot != null)
-                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
-                        onMessageAdded(it, previousChildName)
-                    }
+        if (chatId.isNotBlank()) {
+            messageQuery = DATABASE.child(NODE_ROOT).child(NODE_MESSAGES).child(chatId).orderByChild("date")
+            messageUpdateListener = object : ChildEventListener {
+                override fun onChildAdded(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+                    if (dataSnapshot != null)
+                        convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                            onMessageAdded(it, previousChildName)
+                        }
+                }
+
+                override fun onChildChanged(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+                }
+
+                override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
+                    if (dataSnapshot != null)
+                        convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
+                            onMessageRemoved(it, dataSnapshot.key)
+                        }
+                }
+
+                override fun onChildMoved(dataSnapshot: DataSnapshot?, previousChildName: String?) {
+
+                }
+
+                override fun onCancelled(databaseError: DatabaseError?) {
+
+                }
             }
-
-            override fun onChildChanged(dataSnapshot: DataSnapshot?, previousChildName: String?) {
-
-            }
-
-            override fun onChildRemoved(dataSnapshot: DataSnapshot?) {
-                if (dataSnapshot != null)
-                    convertToMessage(dataSnapshot, dataSnapshot.key).notNull {
-                        onMessageRemoved(it, dataSnapshot.key)
-                    }
-            }
-
-            override fun onChildMoved(dataSnapshot: DataSnapshot?, previousChildName: String?) {
-
-            }
-
-            override fun onCancelled(databaseError: DatabaseError?) {
-
-            }
+            messageQuery?.addChildEventListener(messageUpdateListener)
         }
-        messageQuery?.addChildEventListener(messageUpdateListener)
 
     }
 
