@@ -1,19 +1,16 @@
 package com.silwek.cleverchat.ui.fragments
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.silwek.cleverchat.R
-import com.silwek.cleverchat.databases.CoreDatabaseFactory
-import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatUser
+import com.silwek.cleverchat.presenters.ChatFriendPresenter
+import com.silwek.cleverchat.presenters.CreateChatPresenter
 import com.silwek.cleverchat.ui.adapters.FriendViewAdapter
-import com.silwek.cleverchat.viewmodels.ChatUserFriendsViewModel
 import kotlinx.android.synthetic.main.fragment_create_chat.*
 
 /**
@@ -26,6 +23,8 @@ class CreateChatFragment : Fragment() {
     }
 
     private lateinit var chatUserFriendsAdapter: FriendViewAdapter
+    private val createChatPresenter: CreateChatPresenter by lazy { CreateChatPresenter() }
+    private val chatFriendPresenter: ChatFriendPresenter by lazy { ChatFriendPresenter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,8 +60,7 @@ class CreateChatFragment : Fragment() {
     }
 
     private fun initDataObserver() {
-        val model = ViewModelProviders.of(this).get(ChatUserFriendsViewModel::class.java)
-        model.getChatUserFriends()?.observe(this, Observer { friends -> chatUserFriendsAdapter.values = friends })
+        chatFriendPresenter.getChatFriends(this) { friends -> chatUserFriendsAdapter.values = friends }
     }
 
     private fun onFriendSelected(friend: ChatUser) {
@@ -71,18 +69,16 @@ class CreateChatFragment : Fragment() {
 
     private fun createChat() {
         if (fieldName != null && chatUserFriendsAdapter.friendsList.isNotEmpty()) {
-            val name = fieldName.text.toString();
-            val user = getDatabaseFactory().getUserDatabase()?.getCurrentUser()
-            val members = chatUserFriendsAdapter.friendsList.toMutableList()
-            members.add(ChatUser(user?.name, user?.id))
-            CoreDatabaseFactory.firebaseDatabase.createChat(name, members, {
+            val name = fieldName.text.toString()
+            val members = chatUserFriendsAdapter.friendsList
+            createChatPresenter.createChat(name, members) { chatId ->
                 val i = Intent().apply {
-                    putExtra(RESULT_CHAT_ID, it)
+                    putExtra(RESULT_CHAT_ID, chatId)
                     putExtra(RESULT_CHAT_NAME, name)
                 }
                 activity?.setResult(Activity.RESULT_OK, i)
                 activity?.finish()
-            })
+            }
         } else {
             TODO("Show fields error")
         }

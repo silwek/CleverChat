@@ -1,8 +1,6 @@
 package com.silwek.cleverchat.ui.activities
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,10 +10,10 @@ import android.view.Menu
 import android.view.MenuItem
 import com.silwek.cleverchat.*
 import com.silwek.cleverchat.models.ChatRoom
+import com.silwek.cleverchat.presenters.ChatRoomsPresenter
 import com.silwek.cleverchat.ui.adapters.ChatRoomViewAdapter
 import com.silwek.cleverchat.ui.fragments.ChatFragment
 import com.silwek.cleverchat.ui.fragments.CreateChatFragment
-import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
 import org.jetbrains.anko.find
@@ -40,6 +38,7 @@ class ChatRoomsActivity : AppCompatActivity(), ToolbarManager {
 
     private var twoPane: Boolean = false
     private lateinit var chatRoomsAdapter: ChatRoomViewAdapter
+    private val chatRoomsPresenter: ChatRoomsPresenter by lazy { ChatRoomsPresenter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,14 +46,10 @@ class ChatRoomsActivity : AppCompatActivity(), ToolbarManager {
         setSupportActionBar(toolbar)
         setActionBarTitle(getString(R.string.app_name))
 
-        fab.setOnClickListener { _ ->
-            goToCreateChatActivity()
-        }
-
         twoPane = (chatroom_detail_container != null)
-
         setupRecyclerView(chatroom_list)
-        initDataObserver()
+        initData()
+        fab.setOnClickListener { _ -> goToCreateChatActivity() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -74,10 +69,8 @@ class ChatRoomsActivity : AppCompatActivity(), ToolbarManager {
         recyclerView.adapter = chatRoomsAdapter
     }
 
-    private fun initDataObserver() {
-        val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java)
-        model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
-        getDatabaseFactory().getFriendsDatabase()?.insertChatUserIfNeeded()
+    private fun initData() {
+        chatRoomsPresenter.getChatRooms(this) { rooms -> chatRoomsAdapter.values = rooms }
     }
 
     private fun goToAccountActivity() {

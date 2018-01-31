@@ -2,12 +2,12 @@ package com.silwek.cleverchat.databases
 
 import com.google.firebase.database.*
 import com.google.firebase.database.FirebaseDatabase
-import com.silwek.cleverchat.CoreApplication
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_CHATS
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_MEMBERS
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_MESSAGES
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_ROOT
 import com.silwek.cleverchat.databases.IChatDatabase.Companion.NODE_USERS
+import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatMessage
 import com.silwek.cleverchat.models.ChatRoom
 import com.silwek.cleverchat.models.ChatUser
@@ -20,7 +20,7 @@ import java.util.*
 /**
  * @author Silwèk on 12/01/2018
  */
-class FirebaseDatabase(private val firebaseInstance: FirebaseDatabase = FirebaseDatabase.getInstance(), private val dbFactory: CoreDatabaseFactory = CoreApplication.getDatabaseFactory()) : AnkoLogger, IChatDatabase {
+class FirebaseDatabase(private val firebaseInstance: FirebaseDatabase = FirebaseDatabase.getInstance(), private val dbFactory: CoreDatabaseFactory = getDatabaseFactory()) : AnkoLogger, IChatDatabase {
 
     private val DATABASE: DatabaseReference by lazy {
         firebaseInstance.reference

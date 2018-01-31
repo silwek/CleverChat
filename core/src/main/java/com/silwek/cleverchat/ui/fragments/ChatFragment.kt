@@ -1,7 +1,5 @@
 package com.silwek.cleverchat.ui.fragments
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
@@ -9,20 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.silwek.cleverchat.R
-import com.silwek.cleverchat.databases.CoreDatabaseFactory
-import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.getToolbarManager
 import com.silwek.cleverchat.models.ChatRoom
-import com.silwek.cleverchat.notNull
+import com.silwek.cleverchat.presenters.ChatPresenter
 import com.silwek.cleverchat.ui.adapters.ChatMessageViewAdapter
-import com.silwek.cleverchat.viewmodels.ChatMessagesViewModel
 import kotlinx.android.synthetic.main.view_chat.*
 import kotlinx.android.synthetic.main.view_chat.view.*
 
 /**
  * @author Silwèk on 12/01/2018
  */
-class ChatFragment : Fragment() {
+class ChatFragment() : Fragment() {
 
     companion object {
         const val ARG_CHAT_ID = "chat_id"
@@ -31,6 +26,7 @@ class ChatFragment : Fragment() {
 
     private var chat: ChatRoom? = null
     private var messagesAdapter: ChatMessageViewAdapter? = null
+    private val chatPresenter: ChatPresenter by lazy { ChatPresenter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +44,7 @@ class ChatFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.view_chat, container, false)
 
         setupRecyclerView(rootView.messagesList)
-        initDataObserver()
+        initData()
 
         rootView.btSend.setOnClickListener {
             sendMessage()
@@ -61,21 +57,22 @@ class ChatFragment : Fragment() {
 
         })
         recyclerView.adapter = messagesAdapter
-        messagesAdapter?.userId = getDatabaseFactory().getUserDatabase()?.getCurrentUserId()
+        messagesAdapter?.userId = chatPresenter.getUserId()
         getToolbarManager()?.attachToScroll(recyclerView)
     }
 
-    private fun initDataObserver() {
-        val model = ViewModelProviders.of(this).get(ChatMessagesViewModel::class.java)
-        model.chatId = chat?.id
-        model.getChatMessages()?.observe(this, Observer { messages -> messagesAdapter?.values = messages })
+    private fun initData() {
+        val chatId = chat?.id
+        chatId?.let {
+            chatPresenter.getChatMessages(chatId, this) { messages -> messagesAdapter?.values = messages }
+        }
     }
 
     private fun sendMessage() {
         val message = fieldMessage.text.toString()
         val chatId = chat?.id
-        chatId.notNull {
-            CoreDatabaseFactory.firebaseDatabase.sendMessage(it, message, { fieldMessage.setText("") })
+        chatId?.let {
+            chatPresenter.sendMessage(chatId, message) { fieldMessage.setText("") }
         }
     }
 }
