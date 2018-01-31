@@ -20,6 +20,7 @@ abstract class SimpleRecyclerViewAdapter<T, U : RecyclerView.ViewHolder?>(privat
 
     init {
         mOnClickListener = View.OnClickListener { v ->
+            @Suppress("UNCHECKED_CAST")
             val item = v.tag as T
             onItemClick(item)
         }

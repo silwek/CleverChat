@@ -12,16 +12,20 @@ import com.silwek.cleverchat.R
 import com.silwek.cleverchat.databases.CoreDatabaseFactory
 import com.silwek.cleverchat.getDatabaseFactory
 import com.silwek.cleverchat.models.ChatUser
-import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
+import com.silwek.cleverchat.ui.adapters.FriendViewAdapter
 import com.silwek.cleverchat.viewmodels.ChatUserFriendsViewModel
 import kotlinx.android.synthetic.main.fragment_create_chat.*
-import kotlinx.android.synthetic.main.item_chat_user.view.*
 
 /**
  * @author Silwèk on 13/01/2018
  */
 class CreateChatFragment : Fragment() {
-    private lateinit var chatUserFriendsAdapter: SimpleItemRecyclerViewAdapter
+    companion object {
+        const val RESULT_CHAT_ID = "RESULT_CHAT_ID"
+        const val RESULT_CHAT_NAME = "RESULT_CHAT_NAME"
+    }
+
+    private lateinit var chatUserFriendsAdapter: FriendViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,13 +52,17 @@ class CreateChatFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         setupRecyclerView(membersList)
-        val model = ViewModelProviders.of(this).get(ChatUserFriendsViewModel::class.java!!)
-        model.getChatUserFriends()?.observe(this, Observer { friends -> chatUserFriendsAdapter.values = friends })
+        initDataObserver()
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        chatUserFriendsAdapter = SimpleItemRecyclerViewAdapter { onFriendSelected(it) }
+        chatUserFriendsAdapter = FriendViewAdapter { onFriendSelected(it) }
         recyclerView.adapter = chatUserFriendsAdapter
+    }
+
+    private fun initDataObserver() {
+        val model = ViewModelProviders.of(this).get(ChatUserFriendsViewModel::class.java)
+        model.getChatUserFriends()?.observe(this, Observer { friends -> chatUserFriendsAdapter.values = friends })
     }
 
     private fun onFriendSelected(friend: ChatUser) {
@@ -78,40 +86,5 @@ class CreateChatFragment : Fragment() {
         } else {
             TODO("Show fields error")
         }
-    }
-
-    class SimpleItemRecyclerViewAdapter(onItemClick: (ChatUser) -> Unit) :
-            SimpleRecyclerViewAdapter<ChatUser, SimpleItemRecyclerViewAdapter.ViewHolder>(onItemClick) {
-        var friendsList: MutableList<ChatUser> = ArrayList()
-
-        fun switchFriend(user: ChatUser) {
-            if (friendsList.contains(user))
-                friendsList.remove(user)
-            else
-                friendsList.add(user)
-            if (values != null)
-                notifyItemChanged(values!!.indexOf(user))
-        }
-
-        override fun createView(parent: ViewGroup): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_chat_user, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun bind(holder: ViewHolder, item: ChatUser, position: Int) {
-            holder.contentView.text = item.name
-            holder.contentCheck.isChecked = friendsList.contains(item)
-        }
-
-        inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
-            val contentView = mView.content
-            val contentCheck = mView.contentCheck
-        }
-    }
-
-    companion object {
-        val RESULT_CHAT_ID = "RESULT_CHAT_ID"
-        val RESULT_CHAT_NAME = "RESULT_CHAT_NAME"
     }
 }

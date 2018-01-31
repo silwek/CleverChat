@@ -7,19 +7,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.view.*
-import android.widget.TextView
-import com.silwek.cleverchat.CoreApplication
-import com.silwek.cleverchat.R
-import com.silwek.cleverchat.getDatabaseFactory
+import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
+import com.silwek.cleverchat.*
 import com.silwek.cleverchat.models.ChatRoom
-import com.silwek.cleverchat.ui.adapters.SimpleRecyclerViewAdapter
+import com.silwek.cleverchat.ui.adapters.ChatRoomViewAdapter
 import com.silwek.cleverchat.ui.fragments.ChatFragment
 import com.silwek.cleverchat.ui.fragments.CreateChatFragment
 import com.silwek.cleverchat.viewmodels.ChatRoomsViewModel
 import kotlinx.android.synthetic.main.activity_chatrooms.*
 import kotlinx.android.synthetic.main.include_chatrooms.*
-import kotlinx.android.synthetic.main.item_chat.view.*
+import org.jetbrains.anko.find
 
 
 /**
@@ -32,39 +31,30 @@ import kotlinx.android.synthetic.main.item_chat.view.*
  *
  * @author Silwèk on 12/01/2018
  */
-class ChatRoomsActivity : AppCompatActivity() {
+class ChatRoomsActivity : AppCompatActivity(), ToolbarManager {
+    companion object {
+        private const val REQUEST_CREATE_CHAT = 2106
+    }
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
+    override val toolbar: Toolbar by lazy { find<Toolbar>(R.id.toolbar) }
+
     private var twoPane: Boolean = false
-
-    private lateinit var chatRoomsAdapter: SimpleItemRecyclerViewAdapter
+    private lateinit var chatRoomsAdapter: ChatRoomViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatrooms)
-
         setSupportActionBar(toolbar)
-        toolbar.title = title
+        setActionBarTitle(getString(R.string.app_name))
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener { _ ->
             goToCreateChatActivity()
         }
 
-        if (chatroom_detail_container != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            twoPane = true
-        }
+        twoPane = (chatroom_detail_container != null)
 
         setupRecyclerView(chatroom_list)
-        val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java!!)
-        model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
-        getDatabaseFactory().getFriendsDatabase()?.insertChatUserIfNeeded()
+        initDataObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -79,66 +69,49 @@ class ChatRoomsActivity : AppCompatActivity() {
         return true
     }
 
+    private fun setupRecyclerView(recyclerView: RecyclerView) {
+        chatRoomsAdapter = ChatRoomViewAdapter { showChat(it) }
+        recyclerView.adapter = chatRoomsAdapter
+    }
+
+    private fun initDataObserver() {
+        val model = ViewModelProviders.of(this).get(ChatRoomsViewModel::class.java)
+        model.getChatRooms()?.observe(this, Observer { rooms -> chatRoomsAdapter.values = rooms })
+        getDatabaseFactory().getFriendsDatabase()?.insertChatUserIfNeeded()
+    }
+
     private fun goToAccountActivity() {
         startActivity(CoreApplication.instance.getAccountIntent())
     }
 
     private fun goToCreateChatActivity() {
-        startActivityForResult(Intent(this, CreateChatActivity::class.java), REQUEST_CREATE_CHAT)
+        startActivityForResult(Intent(this, CreateChatActivity::class.java), Companion.REQUEST_CREATE_CHAT)
     }
 
     private fun showChat(chat: ChatRoom) {
-        if (twoPane) {
-            val fragment = ChatFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ChatFragment.ARG_CHAT_ID, chat.id)
-                    putString(ChatFragment.ARG_CHAT_NAME, chat.name)
-                }
+        with(chat) {
+            val chatParams: Map<String, Any?> = mapOf(
+                    ChatFragment.ARG_CHAT_ID to id,
+                    ChatFragment.ARG_CHAT_NAME to name)
+            if (twoPane) {
+                val fragment = fragmentFor<ChatFragment>(chatParams)
+                replaceFragment(fragment, R.id.chatroom_detail_container)
+            } else {
+                startActivity<ChatActivity>(chatParams)
             }
-            supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.chatroom_detail_container, fragment)
-                    .commit()
-        } else {
-            val intent = Intent(this, ChatActivity::class.java).apply {
-                putExtra(ChatFragment.ARG_CHAT_ID, chat.id)
-                putExtra(ChatFragment.ARG_CHAT_NAME, chat.name)
-            }
-            startActivity(intent)
         }
-    }
-
-    private fun setupRecyclerView(recyclerView: RecyclerView) {
-        chatRoomsAdapter = SimpleItemRecyclerViewAdapter { showChat(it) }
-        recyclerView.adapter = chatRoomsAdapter
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CREATE_CHAT && resultCode == Activity.RESULT_OK) {
-            val chatId = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_ID)
-            val chatName = data?.getStringExtra(CreateChatFragment.RESULT_CHAT_NAME)
-            val chat = ChatRoom(name = chatName, id = chatId)
-            showChat(chat)
+        if (requestCode == Companion.REQUEST_CREATE_CHAT && resultCode == Activity.RESULT_OK) {
+            data?.let {
+                val chatId = it.getStringExtra(CreateChatFragment.RESULT_CHAT_ID)
+                val chatName = it.getStringExtra(CreateChatFragment.RESULT_CHAT_NAME)
+                val chat = ChatRoom(name = chatName, id = chatId)
+                showChat(chat)
+            }
+
         }
     }
-
-    class SimpleItemRecyclerViewAdapter(onItemClick: (ChatRoom) -> Unit) :
-            SimpleRecyclerViewAdapter<ChatRoom, SimpleItemRecyclerViewAdapter.ViewHolder>(onItemClick) {
-        override fun createView(parent: ViewGroup): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_chat, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun bind(holder: ViewHolder, item: ChatRoom, position: Int) {
-            holder.mContentView.text = item.name
-        }
-
-        inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
-            val mContentView: TextView = mView.content
-        }
-    }
-
-    private val REQUEST_CREATE_CHAT = 2106
 }

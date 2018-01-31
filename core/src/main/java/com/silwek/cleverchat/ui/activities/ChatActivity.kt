@@ -3,20 +3,23 @@ package com.silwek.cleverchat.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.MenuItem
+import android.support.v7.widget.Toolbar
 import com.silwek.cleverchat.R
+import com.silwek.cleverchat.addFragment
+import com.silwek.cleverchat.fragmentFor
 import com.silwek.cleverchat.ui.fragments.ChatFragment
-import kotlinx.android.synthetic.main.activity_chat.*
+import org.jetbrains.anko.find
 
 /**
- * An activity representing a single ChatRoom detail screen. This
+ * An activity representing a single ChatRoom screen. This
  * activity is only used on narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
+ * item details are presented side-by-side with a list of ChatRooms
  * in a [ChatRoomsActivity].
  *
  * @author Silwèk on 12/01/2018
  */
-class ChatActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity(), ToolbarManager {
+    override val toolbar: Toolbar by lazy { find<Toolbar>(R.id.toolbar) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,47 +27,15 @@ class ChatActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         // Show the Up button in the action bar.
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        enableHomeAsUp { navigateUpTo(Intent(this, ChatRoomsActivity::class.java)) }
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
         if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            val fragment = ChatFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ChatFragment.ARG_CHAT_ID,
-                            intent.getStringExtra(ChatFragment.ARG_CHAT_ID))
-                    putString(ChatFragment.ARG_CHAT_NAME,
-                            intent.getStringExtra(ChatFragment.ARG_CHAT_NAME))
-                }
+            with(intent) {
+                val fragment = fragmentFor<ChatFragment>(
+                        ChatFragment.ARG_CHAT_ID to getStringExtra(ChatFragment.ARG_CHAT_ID),
+                        ChatFragment.ARG_CHAT_NAME to getStringExtra(ChatFragment.ARG_CHAT_NAME))
+                addFragment(fragment, R.id.chatroom_detail_container)
             }
-
-            supportFragmentManager.beginTransaction()
-                    .add(R.id.chatroom_detail_container, fragment)
-                    .commit()
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem) =
-            when (item.itemId) {
-                android.R.id.home -> {
-                    // This ID represents the Home or Up button. In the case of this
-                    // activity, the Up button is shown. For
-                    // more details, see the Navigation pattern on Android Design:
-                    //
-                    // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-
-                    navigateUpTo(Intent(this, ChatRoomsActivity::class.java))
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 }
