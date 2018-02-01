@@ -40,7 +40,7 @@ class ChatMessagesViewModel() : ViewModel() {
                         }
                         chatMessages?.value = messages
                     },
-                    onMessageRemoved = { chatMessage, removedId ->
+                    onMessageRemoved = { chatMessage, _ ->
                         val messages = chatMessages?.value?.toMutableList() ?: ArrayList(0)
                         if (messages.contains(chatMessage))
                             messages.remove(chatMessage)
